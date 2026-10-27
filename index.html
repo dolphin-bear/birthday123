@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>生日快乐 · 给你的一封信</title>
+<!-- 微信 / 移动端适配 -->
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#08060f">
+<!-- 分享卡片（部署后把 og:image 改成绝对地址效果更好） -->
+<meta property="og:title" content="生日快乐 · 给你的一封信">
+<meta property="og:description" content="轻触开启，有一份祝福给你">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --gold:#ffd7a0; --pink:#ff8fb8; --violet:#9d8cff; --bg:#08060f;
+    --vh: 1vh;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html{background:#08060f}
+  html,body{
+    margin:0; padding:0; height:100%; background:var(--bg); color:#fff;
+    font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,sans-serif;
+    -webkit-text-size-adjust:100%; overflow:hidden;
+    -webkit-touch-callout:none;
+    -webkit-user-select:none; -moz-user-select:none; user-select:none;
+    touch-action:manipulation;
+  }
+  img{-webkit-user-drag:none; user-select:none; pointer-events:none}
+  canvas{display:block}
+
+  /* ---------- 滚动容器：整屏吸附 ---------- */
+  #scenes{
+    height:calc(var(--vh,1vh)*100);
+    overflow-y:scroll; overflow-x:hidden;
+    scroll-snap-type:y mandatory;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
+  }
+  #scenes::-webkit-scrollbar{display:none}
+  #scenes.locked{overflow:hidden}
+  .scene{
+    position:relative; height:calc(var(--vh,1vh)*100);
+    scroll-snap-align:start; scroll-snap-stop:always;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:32px 24px; overflow:hidden;
+  }
+  .scene canvas.bg{position:absolute; inset:0; width:100%; height:100%}
+  .layer{position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; text-align:center}
+
+  /* ---------- 通用文字 ---------- */
+  .kicker{font-size:clamp(9px,2.55vw,12px); letter-spacing:.42em; color:#7d88ab; margin-bottom:22px;
+    white-space:nowrap}
+  .h1{
+    font-size:clamp(34px,10vw,64px); font-weight:700; letter-spacing:.1em; line-height:1.25;
+    background:linear-gradient(96deg,#ffe3b8,#ff9ec7 46%,#a9b8ff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .sub{font-size:15px; color:#8b96b8; line-height:2; letter-spacing:.06em}
+  .hint{
+    position:absolute; bottom:28px; left:0; right:0; text-align:center;
+    bottom:calc(28px + env(safe-area-inset-bottom, 0px));
+    font-size:12px; letter-spacing:.34em; color:#5b6482; z-index:3;
+    animation:floatUp 2.4s ease-in-out infinite;
+  }
+  @keyframes floatUp{0%,100%{transform:translateY(0);opacity:.65}50%{transform:translateY(-7px);opacity:1}}
+
+  /* ---------- 1 封面 ---------- */
+  #s1{background:radial-gradient(circle at 50% 34%,#241636,#0b0814 58%,#06040b)}
+  #s1 .glow{
+    position:absolute; width:760px; height:760px; border-radius:50%;
+    background:radial-gradient(circle,rgba(255,160,200,.22),rgba(140,120,255,.12) 42%,transparent 68%);
+    filter:blur(6px);
+  }
+  .open-btn{
+    margin-top:44px; padding:15px 42px; border-radius:999px; cursor:pointer;
+    border:1px solid rgba(255,215,170,.45);
+    background:linear-gradient(180deg,rgba(255,215,170,.16),rgba(255,143,184,.1));
+    color:#ffe9d2; font-size:16px; letter-spacing:.3em;
+    box-shadow:0 0 28px rgba(255,170,200,.22), inset 0 1px 0 rgba(255,255,255,.18);
+    transition:transform .25s, box-shadow .25s;
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+  }
+  .open-btn:active{transform:scale(.96)}
+  .open-btn.pulse{animation:pulse 2.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 0 22px rgba(255,170,200,.2)}50%{box-shadow:0 0 44px rgba(255,170,200,.5)}}
+  .meta{position:absolute; bottom:26px; font-size:11px; color:#4d5573; letter-spacing:.28em}
+
+  /* ---------- 2 星空打字 ---------- */
+  #s2{background:#05060f}
+  .typed-wrap{min-height:120px; display:flex; align-items:center; justify-content:center}
+  #typed{font-size:clamp(26px,7.4vw,44px); font-weight:600; letter-spacing:.16em; color:#fff}
+  .caret{display:inline-block; width:2px; height:1em; background:var(--pink);
+    vertical-align:-.12em; margin-left:4px; animation:blink .9s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  #s2 .sub{opacity:0; transition:opacity 1.4s ease}
+  #s2 .sub.on{opacity:1}
+
+  /* ---------- 3 蛋糕 ---------- */
+  #s3{background:radial-gradient(circle at 50% 62%,#1d1233,#0a0714 62%,#06040c)}
+  #s3 .title{font-size:clamp(22px,6vw,32px); letter-spacing:.32em; color:#fff; font-weight:600;
+    text-shadow:0 0 26px rgba(190,160,255,.6)}
+  #s3 .blow-hint{position:absolute; bottom:76px; left:0; right:0; text-align:center;
+    font-size:13px; letter-spacing:.24em; color:#8f7fd0; z-index:3; transition:opacity .6s}
+  #s3 .wish{position:absolute; bottom:120px; left:0; right:0; text-align:center;
+    font-size:15px; letter-spacing:.2em; color:#ffe1c2; opacity:0; transform:translateY(10px);
+    transition:all 1s .3s; z-index:3}
+  #s3 .wish.on{opacity:1; transform:translateY(0)}
+
+  /* ---------- 4 拆礼物 ---------- */
+  #s4{background:radial-gradient(circle at 50% 36%,#2a1440,#130a1c 62%,#07040c)}
+  .gift-stage{position:relative; width:230px; height:310px; margin-top:24px; z-index:4;
+    transform:perspective(1000px) rotateX(7deg); transform-origin:50% 92%}
+  .gift-hint{position:absolute; left:-40px; right:-40px; top:-56px; text-align:center;
+    font-size:12.5px; letter-spacing:.22em; color:#c9b6e6; transition:opacity .5s;
+    animation:hintFloat 2.8s ease-in-out infinite}
+  @keyframes hintFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .gift-hint.hide{opacity:0}
+
+  .gbox{position:absolute; left:50%; bottom:0; width:200px; margin-left:-100px; height:140px;
+    cursor:pointer; animation:breathe 3.4s ease-in-out infinite}
+  /* 扩大点击热区（连提示文字那一块都能点） */
+  .gbox::before{content:""; position:absolute; inset:-40px -18px -10px; border-radius:22px}
+  @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
+  .gbox.open{animation:none}
+
+  .gbox .gbody{position:absolute; inset:0; border-radius:10px;
+    background-image:
+      radial-gradient(circle at 9px 9px, rgba(255,255,255,.20) 2px, transparent 2.6px),
+      linear-gradient(100deg, rgba(255,255,255,.38) 0%, rgba(255,255,255,0) 34%, rgba(120,20,60,.28) 100%),
+      linear-gradient(165deg,#ffb7d0,#ff7fae 46%,#d4578a);
+    background-size:28px 28px, 100% 100%, 100% 100%;
+    box-shadow:0 26px 46px rgba(0,0,0,.55), inset 0 -16px 26px rgba(0,0,0,.22),
+      inset 0 2px 0 rgba(255,255,255,.5)}
+  .gbox .gbody::after{content:""; position:absolute; left:0; right:0; top:0; height:15px;
+    border-radius:10px 10px 0 0; background:linear-gradient(180deg,rgba(255,255,255,.45),transparent)}
+
+  /* 盒口内部：拆开后露出，增加纵深 */
+  .ginside{position:absolute; left:7px; right:7px; top:0; height:36px; z-index:1;
+    border-radius:8px 8px 16px 16px; opacity:0; transition:opacity .35s .08s;
+    background:linear-gradient(180deg,#5e1f3a 0%,#8d3560 55%,#c2648f 100%);
+    box-shadow:inset 0 -10px 16px rgba(0,0,0,.55), inset 0 6px 10px rgba(0,0,0,.5)}
+  .gbox.open .ginside{opacity:1}
+
+  /* 拆开时"duang"地弹出来的小东西 */
+  .gitems{position:absolute; left:50%; bottom:118px; width:0; height:0; z-index:6}
+  /* 扇形背后的一团暖光，拆开常驻，让画面更"满" */
+  .gburst{position:absolute; left:50%; bottom:56px; width:330px; height:300px; margin-left:-165px;
+    pointer-events:none; z-index:2; opacity:0; transition:opacity .7s .15s;
+    background:radial-gradient(ellipse at 50% 78%, rgba(255,215,180,.30),
+      rgba(255,150,200,.16) 46%, transparent 72%)}
+  .gbox.open .gburst{opacity:1}
+  .gitem{position:absolute; left:0; top:0; width:var(--sz,40px); height:var(--sz,40px);
+    margin:calc(var(--sz,40px) / -2) 0 0 calc(var(--sz,40px) / -2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:calc(var(--sz,40px) * .82); line-height:1;
+    opacity:0; pointer-events:none;
+    filter:drop-shadow(0 6px 12px rgba(0,0,0,.5)) drop-shadow(0 0 7px rgba(255,224,240,.35));
+    transform:translate(0,0) scale(.2) rotate(0deg);
+    transition:transform .78s cubic-bezier(.18,1.7,.3,1), opacity .22s}
+  .gbox.open .gitem{opacity:1;
+    transform:translate(var(--tx,0px), var(--ty,-80px)) scale(1) rotate(var(--rot,0deg));
+    animation:duang 3.4s ease-in-out 1.05s infinite}
+  @keyframes duang{
+    0%,100%{transform:translate(var(--tx,0px), calc(var(--ty,-80px) - 3px)) scale(1) rotate(var(--rot,0deg))}
+    50%{transform:translate(var(--tx,0px), calc(var(--ty,-80px) + 4px)) scale(1.03) rotate(calc(var(--rot,0deg) + 3deg))}
+  }
+
+  .rib-v{position:absolute; left:50%; top:0; bottom:0; width:32px; margin-left:-16px;
+    background:linear-gradient(90deg,rgba(255,255,255,.05),rgba(255,255,255,.78),rgba(255,255,255,.05))}
+  .rib-h{position:absolute; left:0; right:0; top:30px; height:24px;
+    background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.72),rgba(255,255,255,.06))}
+
+  .glid{position:absolute; left:-13px; right:-13px; top:-32px; height:52px; z-index:4}
+  .glid .gtop{position:absolute; inset:0; border-radius:12px;
+    background-image:
+      linear-gradient(100deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 38%, rgba(140,25,70,.25) 100%),
+      linear-gradient(165deg,#ffd0e0,#ff8fb8 58%,#dc6494);
+    background-size:100% 100%, 100% 100%;
+    box-shadow:0 12px 24px rgba(0,0,0,.45), inset 0 2px 0 rgba(255,255,255,.6),
+      inset 0 -3px 8px rgba(120,20,60,.3)}
+  .gbox.open .glid{animation:lidFly 1.15s cubic-bezier(.22,.8,.3,1) forwards}
+  @keyframes lidFly{
+    0%{transform:translate(0,0) rotate(0)}
+    26%{transform:translate(0,-118px) rotate(-12deg)}
+    52%{transform:translate(-46px,-104px) rotate(-28deg)}
+    100%{transform:translate(-104px,140px) rotate(-62deg); opacity:0}
+  }
+
+  .bow{position:absolute; left:50%; top:-26px; width:102px; height:46px; margin-left:-51px}
+  .bow span{position:absolute; top:8px; width:42px; height:30px;
+    border-radius:52% 52% 52% 52%/62% 62% 38% 38%;
+    background:linear-gradient(150deg,#fff4dc,#ffcbdd 62%,#ef9bbb);
+    box-shadow:0 5px 12px rgba(0,0,0,.28)}
+  .bow span:nth-child(1){left:0; transform:rotate(-20deg)}
+  .bow span:nth-child(2){right:0; transform:rotate(20deg)}
+  .bow i{position:absolute; left:50%; top:16px; width:18px; height:18px; margin-left:-9px;
+    border-radius:50%; background:linear-gradient(150deg,#fff6e4,#ffb9cf);
+    box-shadow:0 2px 6px rgba(0,0,0,.3)}
+
+  .gknot{position:absolute; left:50%; bottom:22px; width:200px; height:60px; margin-left:-100px;
+    background:radial-gradient(ellipse at center,rgba(0,0,0,.5),transparent 70%); filter:blur(3px)}
+
+  .glow-beam{position:absolute; left:50%; bottom:96px; width:280px; height:280px; margin-left:-140px;
+    border-radius:50%; pointer-events:none; opacity:0; z-index:2;
+    background:radial-gradient(circle,rgba(255,240,200,.9),rgba(255,196,150,.34) 44%,transparent 70%)}
+  .gbox.open .glow-beam{animation:beam .95s ease-out forwards}
+  @keyframes beam{0%{opacity:0;transform:scale(.35)}28%{opacity:1}100%{opacity:0;transform:scale(1.4)}}
+
+  /* 外围若隐若现的花 */
+  .gflowers{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+  .gflowers span{position:absolute; opacity:.15; filter:blur(1.2px);
+    animation:petalFloat 9s ease-in-out infinite}
+  .gflowers span:nth-child(1){left:5%;  top:10%; font-size:42px; animation-delay:0s;   opacity:.17}
+  .gflowers span:nth-child(2){right:4%; top:16%; font-size:34px; animation-delay:1.4s; opacity:.13}
+  .gflowers span:nth-child(3){left:9%;  top:44%; font-size:28px; animation-delay:2.6s; opacity:.11}
+  .gflowers span:nth-child(4){right:7%; top:52%; font-size:38px; animation-delay:.8s;  opacity:.14}
+  .gflowers span:nth-child(5){left:16%; bottom:12%; font-size:30px; animation-delay:3.2s; opacity:.12}
+  .gflowers span:nth-child(6){right:14%; bottom:8%; font-size:44px; animation-delay:2s;  opacity:.10}
+  .gflowers span:nth-child(7){left:46%; top:6%;  font-size:24px; animation-delay:1s;   opacity:.10}
+  .gflowers span:nth-child(8){right:34%; bottom:22%; font-size:26px; animation-delay:4s; opacity:.09}
+  @keyframes petalFloat{
+    0%,100%{transform:translateY(0) rotate(-7deg) scale(1)}
+    50%{transform:translateY(-15px) rotate(9deg) scale(1.06)}
+  }
+
+  /* 背景飘落纸屑（底层图案，铺满整个场景） */
+  .gconfetti{position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden}
+  .gconfetti i{position:absolute; top:-14%; display:block; border-radius:2px;
+    opacity:.55; filter:blur(.3px); animation:cfFall linear infinite}
+  @keyframes cfFall{
+    0%{transform:translate3d(0,-14vh,0) rotate(0deg)}
+    100%{transform:translate3d(var(--drift,20px), 118vh, 0) rotate(var(--spin,540deg))}
+  }
+
+  /* 盒口往上的光柱：填住礼物和盒子之间的空档 */
+  .gbeam{position:absolute; left:50%; bottom:110px; width:186px; height:210px; margin-left:-93px;
+    z-index:2; opacity:0; transition:opacity .55s .12s; pointer-events:none;
+    background:linear-gradient(to top, rgba(255,220,238,.40),
+      rgba(255,200,228,.12) 52%, rgba(255,200,228,0) 82%);
+    clip-path:polygon(32% 100%, 68% 100%, 100% 0, 0 0);
+    filter:blur(3px)}
+  .gbox.open .gbeam{opacity:1}
+
+
+  /* 从下往上由小变大的背景图案（造纵深） */
+  .gdeep{position:absolute; inset:0; z-index:1; pointer-events:none; overflow:hidden}
+  .gdeep i{position:absolute; display:block; font-style:normal; line-height:1;
+    animation:deepFloat 8s ease-in-out infinite}
+  @keyframes deepFloat{
+    0%,100%{transform:translateY(0) rotate(-4deg)}
+    50%{transform:translateY(-11px) rotate(5deg)}
+  }
+
+  /* 背景礼炮点阵 + 四角礼炮 */
+  .gparty{position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden}
+  .gparty::before{content:""; position:absolute; inset:-12%;
+    background-image:
+      radial-gradient(circle, rgba(255,209,102,.34) 1.7px, transparent 2.3px),
+      radial-gradient(circle, rgba(255,143,184,.30) 1.7px, transparent 2.3px),
+      radial-gradient(circle, rgba(139,233,253,.26) 1.7px, transparent 2.3px),
+      radial-gradient(circle, rgba(167,139,250,.24) 1.7px, transparent 2.3px);
+    background-size:58px 58px, 82px 82px, 110px 110px, 136px 136px;
+    background-position:0 0, 26px 34px, 52px 12px, 18px 66px;
+    opacity:.5;
+    animation:confettiDrift 30s linear infinite}
+  @keyframes confettiDrift{
+    to{background-position:58px 58px, -56px 116px, 162px -98px, 154px 202px}
+  }
+  .gparty span{position:absolute; opacity:.22; filter:blur(.9px);
+    animation:partySway 7.5s ease-in-out infinite}
+  .gparty span:nth-child(1){left:1%;  top:4%;  font-size:46px; animation-delay:0s}
+  .gparty span:nth-child(2){right:2%; top:9%;  font-size:40px; animation-delay:1.6s}
+  .gparty span:nth-child(3){left:3%;  bottom:6%; font-size:38px; animation-delay:2.8s}
+  .gparty span:nth-child(4){right:5%; bottom:9%; font-size:44px; animation-delay:.9s}
+  @keyframes partySway{
+    0%,100%{transform:translateY(0) rotate(-8deg)}
+    50%{transform:translateY(-10px) rotate(6deg)}
+  }
+
+  /* ---------- 5 刮开 → 信（信直接写在信纸上） ---------- */
+  #s5{background:radial-gradient(circle at 50% 46%,#1a1226,#0a0712 62%,#060409)}
+  .card{
+    position:relative; width:min(320px,78vw); height:min(430px,52vh);
+    border-radius:16px; overflow:hidden;
+    background:linear-gradient(165deg,#fffaf2,#f3e6d4 55%,#e8d7c2);
+    box-shadow:0 26px 60px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.7);
+  }
+  .card.done{pointer-events:none}
+  .card .inner{padding:26px 22px; height:100%; display:flex; flex-direction:column; justify-content:center;
+    color:#5b4636; text-align:left; transition:opacity .45s}
+  .card.done .inner{opacity:0}
+  .card .inner h3{margin:0 0 12px; font-size:17px; letter-spacing:.2em; color:#a2714f; font-weight:600}
+  .card .inner p{margin:0; font-size:13px; line-height:2.05; letter-spacing:.02em; color:#6b5442}
+  .card .sign{margin-top:14px; font-size:12px; color:#a2714f; text-align:right; letter-spacing:.14em}
+  #scratch{position:absolute; inset:0; width:100%; height:100%; touch-action:none; cursor:crosshair;
+    transition:opacity .8s; z-index:2}
+  .scratch-tip{margin-top:22px; font-size:12px; letter-spacing:.3em; color:#8b7fb0; z-index:2;
+    transition:opacity .6s}
+  .scratch-tip.hide{opacity:0}
+  .skip{position:absolute; right:22px; bottom:22px;
+    right:calc(22px + env(safe-area-inset-right, 0px));
+    bottom:calc(22px + env(safe-area-inset-bottom, 0px));
+    font-size:11px; color:#5d5677;
+    letter-spacing:.2em; cursor:pointer; z-index:3}
+  .letter{
+    position:absolute; inset:0; padding:26px 22px;
+    text-align:left; font-size:15px; line-height:2.05; color:#5b4636; letter-spacing:.02em;
+    display:flex; flex-direction:column; justify-content:center;
+    opacity:0; visibility:hidden; transition:opacity .9s;
+    overflow:hidden; z-index:3;
+  }
+  .letter.show{opacity:1; visibility:visible}
+  .letter .line{opacity:0; transform:translateY(10px); transition:opacity .8s, transform .8s}
+  .letter .line.on{opacity:1; transform:translateY(0)}
+  .letter .to{font-size:15px; color:#a2714f; letter-spacing:.14em; margin-bottom:14px; font-weight:600}
+  .letter .from{margin-top:18px; text-align:right; color:#a2714f; font-size:12px; letter-spacing:.12em}
+
+  /* ---------- 6 烟花 ---------- */
+  #s6{background:#04040c}
+  .final{position:relative; z-index:3; text-align:center}
+  .final .big{font-size:clamp(34px,9vw,58px); font-weight:700; letter-spacing:.14em; color:#fff;
+    text-shadow:0 0 34px rgba(255,190,120,.8), 0 0 80px rgba(255,90,160,.45)}
+  .final .sub{margin-top:16px}
+  .again{margin-top:34px; padding:11px 30px; border-radius:999px; cursor:pointer;
+    border:1px solid rgba(255,200,150,.34); background:rgba(255,200,150,.08);
+    color:#ffd9b3; font-size:13px; letter-spacing:.24em}
+  .again:active{transform:scale(.97)}
+
+  /* ---------- 右侧进度点 ---------- */
+  #dots{position:fixed; right:13px; right:calc(13px + env(safe-area-inset-right, 0px));
+    top:50%; transform:translateY(-50%); z-index:20;
+    display:flex; flex-direction:column; gap:11px}
+  #dots i{width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.2);
+    transition:all .35s; cursor:pointer}
+  #dots i.on{background:var(--pink); box-shadow:0 0 10px var(--pink); height:16px; border-radius:4px}
+
+  /* ---------- 音乐按钮 ---------- */
+  #musicBtn{position:fixed; right:13px; right:calc(13px + env(safe-area-inset-right, 0px));
+    top:16px; top:calc(16px + env(safe-area-inset-top, 0px)); z-index:20;
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; font-size:15px;
+    border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.05); color:#ffd7a0;
+    cursor:pointer; opacity:.58; transition:opacity .3s}
+  #musicBtn.on{opacity:1; animation:spin 6s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  #wxTip{
+    position:fixed; left:50%; top:14px; transform:translateX(-50%); z-index:30;
+    padding:7px 16px; border-radius:999px; font-size:11px; letter-spacing:.1em;
+    background:rgba(0,0,0,.62); color:#cfc4e0; border:1px solid rgba(255,255,255,.12);
+    opacity:0; transition:opacity .4s; pointer-events:none;
+  }
+  #wxTip.on{opacity:1}
+  @media (max-height:640px){
+    .card{height:50vh}
+  }
+  /* 系统开启"减弱动态效果"时，关掉装饰性循环动画 */
+  @media (prefers-reduced-motion: reduce){
+    .gbox, .gitem, .hint, .open-btn.pulse, #musicBtn.on{animation:none !important}
+  }
+</style>
+</head>
+<body>
+
+<div id="wxTip">点一下屏幕，开启声音</div>
+<button id="musicBtn" aria-label="音乐开关">♪</button>
+<div id="dots"></div>
+
+<main id="scenes" class="locked">
+
+  <!-- 1 封面 -->
+  <section class="scene" id="s1">
+    <div class="glow"></div>
+    <div class="layer">
+      <div class="kicker">A LITTLE GIFT</div>
+      <div class="h1" id="coverTitle">生日快乐</div>
+      <p class="sub" id="coverSub">有一份小小的心意<br>只给你一个人</p>
+      <div class="open-btn pulse" id="openBtn">轻 触 开 启</div>
+    </div>
+    <div class="meta">建议开启声音 · 竖向滑动</div>
+  </section>
+
+  <!-- 2 星空打字 -->
+  <section class="scene" id="s2">
+    <canvas class="bg" id="stars"></canvas>
+    <div class="layer">
+      <div class="kicker">TODAY IS YOUR DAY</div>
+      <div class="typed-wrap"><div id="typed"></div></div>
+      <p class="sub" id="s2sub">愿你所愿皆所得，所行化坦途</p>
+    </div>
+    <div class="hint">向 上 滑 动</div>
+  </section>
+
+  <!-- 3 蛋糕 -->
+  <section class="scene" id="s3">
+    <canvas class="bg" id="cake"></canvas>
+    <div class="layer" style="position:absolute;top:9%">
+      <div class="title">许 个 愿 吧</div>
+    </div>
+    <div class="wish" id="wish">愿望已经替你记下了，一定会实现的</div>
+    <div class="blow-hint" id="blowHint">轻 点 蜡 烛 ， 吹 灭 它</div>
+  </section>
+
+  <!-- 4 拆礼物 -->
+  <section class="scene" id="s4">
+    <canvas class="bg" id="giftFx"></canvas>
+    <div class="gconfetti" id="gConfetti"></div>
+    <div class="gdeep" id="gDeep"></div>
+    <div class="gparty">
+      <span>🎉</span><span>🎊</span><span>🎈</span><span>🎁</span>
+    </div>
+    <div class="gflowers">
+      <span>🌸</span><span>🌺</span><span>🌼</span><span>🌸</span>
+      <span>🌷</span><span>🌺</span><span>🌼</span><span>🌸</span>
+    </div>
+    <div class="gift-stage">
+      <div class="gift-hint" id="giftHint">快 拆 开 你 的 礼 物 盒 吧</div>
+      <div class="gbox" id="giftBox">
+        <div class="glid"><div class="gtop"></div>
+          <div class="bow"><span></span><span></span><i></i></div>
+        </div>
+        <div class="gbody"></div>
+        <div class="ginside"></div>
+        <div class="rib-v"></div>
+        <div class="rib-h"></div>
+        <div class="glow-beam"></div>
+        <div class="gburst"></div>
+        <div class="gbeam"></div>
+        <div class="gitems" id="giftItems"></div>
+      </div>
+      <div class="gknot"></div>
+    </div>
+    <div class="hint">继 续 向 上</div>
+  </section>
+
+  <!-- 5 刮开 → 信（信直接写在信纸上） -->
+  <section class="scene" id="s5">
+    <div class="card" id="scratchCard">
+      <div class="inner" id="cardInner">
+        <h3>刮 开 看 看</h3>
+        <p>有 一 封 信 藏 在 下 面<br>刮 完 它 就 会 出 现</p>
+        <div class="sign" id="cardSign">—— 想你的人</div>
+      </div>
+
+      <div class="letter" id="letter">
+        <div class="line to" id="letterTo">写给 宝贝：</div>
+        <div class="line">认识你之后，我才发现日子是可以被记住的。</div>
+        <div class="line">不是每一天都特别，是因为有你在，</div>
+        <div class="line">普通的星期三也值得被好好收藏。</div>
+        <div class="line">这一年你辛苦了，有很多时刻我都看在眼里。</div>
+        <div class="line">新的一岁，愿你不必逞强，</div>
+        <div class="line">想要的都能慢慢得到，难过的事都尽快过去。</div>
+        <div class="line">我会一直在，不只是在生日这天。</div>
+        <div class="line from" id="letterFrom">—— 生日快乐，永远爱你</div>
+      </div>
+
+      <canvas id="scratch"></canvas>
+    </div>
+    <div class="scratch-tip" id="scratchTip">用 手 指 刮 开 它</div>
+    <div class="skip" id="skip">跳过 ›</div>
+  </section>
+
+  <!-- 7 烟花 -->
+  <section class="scene" id="s6">
+    <canvas class="bg" id="fireworks"></canvas>
+    <div class="final">
+      <div class="big" id="finalTitle">生日快乐</div>
+      <p class="sub" id="finalSub">愿你岁岁平安，年年有我</p>
+      <div class="again" id="again">再 放 一 次 烟 花</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================
+   可修改的配置：改这里就够了
+   ========================================================= */
+const CONFIG = {
+  name: '宝贝',                 // 对方称呼
+  from: '想你的人',              // 落款
+  coverTitle: '生日快乐',
+  coverSub: '有一份小小的心意<br>只给你一个人',
+  typed: '生日快乐 ！',
+  typedSub: '愿你所愿皆所得，所行化坦途',
+  replayTyping: true,          // 每次滑回第二幕都重新打字；改成 false 则只打一次
+  wish: '愿望已经替你记下了，一定会实现的',
+
+  /* ---- 第 4 幕：拆礼物 — 盒子里蹦出来的小东西（改这里就换礼物） ---- */
+  giftItems: ['💄','💍','👑','🎀','💐','🌹','🌷','🌸','🍰','🍩',
+              '☕️','🍬','🍫','🎁','🧸','🐱','🐰','🦄','⭐','🎈','🍓',
+              '🍒','🍉','🎂','🍭','🌻','🦋'],
+
+  /* ---- 第 5 幕：刮开后的信（直接写在信纸上） ---- */
+  finalTitle: '生日快乐',
+  finalSub: '愿你岁岁平安，年年有我'
+};
+
+/* =========================================================
+   基础工具
+   ========================================================= */
+const $ = (s) => document.querySelector(s);
+
+/* 调试用：?notrans=1 只关过渡、隐藏盒盖（保留纸屑等装饰动画，方便预览终态） */
+if(location.search.indexOf('notrans') >= 0){
+  const st = document.createElement('style');
+  st.textContent = '*{transition:none !important} .glid{animation:none !important; display:none !important}';
+  document.head.appendChild(st);
+}
+const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+/* 微信 / iOS 的 100vh 问题：用 JS 写真实视口高度 */
+function fixVH(){
+  document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px');
+}
+fixVH();
+addEventListener('resize', fixVH);
+addEventListener('orientationchange', () => setTimeout(fixVH, 260));
+
+/* 画布适配（考虑 DPR） */
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect();
+  cv.width  = Math.max(1, Math.round(r.width  * DPR));
+  cv.height = Math.max(1, Math.round(r.height * DPR));
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  return { w: r.width, h: r.height, ctx };
+}
+
+/* =========================================================
+   背景音乐：Web Audio 合成《生日快乐》八音盒版
+   （不依赖任何音频文件 / CDN，微信里也不会因外链失效）
+   ========================================================= */
+const Music = (() => {
+  let ctx = null, master = null, playing = false, timer = null, epoch = 0;
+  const voices = [];        // 当前排程里所有还在发声的振荡器
+  // [midi 音高, 拍数]
+  const MEL = [
+    [67,.5],[67,.5],[69,1],[67,1],[72,1],[71,2],
+    [67,.5],[67,.5],[69,1],[67,1],[74,1],[72,2],
+    [67,.5],[67,.5],[79,1],[76,1],[72,1],[71,1],[69,2],
+    [77,.5],[77,.5],[76,1],[72,1],[74,1],[72,2],
+    [0,1]
+  ];
+  const BEAT = 0.46;
+
+  function ensure(){
+    if(ctx) return true;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return false;
+    ctx = new AC();
+    master = ctx.createGain();
+    master.gain.value = 0.16;
+    master.connect(ctx.destination);
+    return true;
+  }
+
+  function bell(midi, at, dur){
+    const f = 440 * Math.pow(2, (midi - 69) / 12);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, at);
+    g.gain.linearRampToValueAtTime(0.55, at + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0008, at + Math.max(0.6, dur * 1.7));
+    g.connect(master);
+    [[1,1],[2,.26],[3,.09]].forEach(([h, amp]) => {
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = f * h;
+      const hg = ctx.createGain();
+      hg.gain.value = amp;
+      o.connect(hg); hg.connect(g);
+      o.start(at); o.stop(at + Math.max(0.8, dur * 1.9));
+      voices.push(o);
+      o.onended = () => {
+        const i = voices.indexOf(o);
+        if(i >= 0) voices.splice(i, 1);
+      };
+    });
+  }
+
+  // 立刻掐断所有已排程的音符（暂停/重播前必须先做这件事）
+  function killVoices(){
+    if(!ctx){ voices.length = 0; return; }
+    const now = ctx.currentTime;
+    voices.forEach(o => {
+      try{ o.stop(now); }catch(e){}
+      try{ o.disconnect(); }catch(e){}
+    });
+    voices.length = 0;
+  }
+
+  function schedule(my){
+    if(!playing || my !== epoch) return;       // 代次不符 = 上一轮的残留调度，直接丢弃
+    let t = ctx.currentTime + 0.08;
+    for(const [m, b] of MEL){
+      const dur = b * BEAT;
+      if(m) bell(m, t, dur);
+      t += dur;
+    }
+    // 等这一轮真正放完（再加 60ms 空隙）才排下一轮，不会尾音叠开头
+    const wait = Math.max(300, (t - ctx.currentTime) * 1000 + 60);
+    timer = setTimeout(() => schedule(my), wait);
+  }
+
+  return {
+    start(){
+      if(playing) return;
+      if(!ensure()) return;
+      killVoices();                            // 保险：先清掉可能残留的声音
+      if(ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
+      playing = true;
+      epoch++;
+      schedule(epoch);
+      $('#musicBtn').classList.add('on');
+    },
+    stop(){
+      playing = false;
+      epoch++;                                 // 让在途的调度全部失效
+      clearTimeout(timer);
+      killVoices();                            // 关键：真正掐掉已排好的音符
+      $('#musicBtn').classList.remove('on');
+    },
+    toggle(){
+      if(playing) this.stop(); else this.start();
+    },
+    // 从后台切回来时，iOS/微信可能把音频挂起，这里恢复一下
+    resume(){
+      if(ctx && ctx.state === 'suspended'){ try{ ctx.resume(); }catch(e){} }
+    },
+    get playing(){ return playing; },
+    get voiceCount(){ return voices.length; }
+  };
+})();
+
+/* 从后台返回时恢复音频上下文（iOS / 微信常见） */
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden) Music.resume();
+});
+
+/* =========================================================
+   1 封面：解锁滚动 + 起音乐
+   ========================================================= */
+(function cover(){
+  $('#coverTitle').textContent = CONFIG.coverTitle;
+  $('#coverSub').innerHTML = CONFIG.coverSub;
+  let started = false;
+  // 每次点都前进；只有第一次才启动音乐（Music.start 自身也幂等）
+  const go = () => {
+    SC.classList.remove('locked');
+    $('#openBtn').classList.remove('pulse');
+    $('#openBtn').textContent = '继 续 向 上 ›';
+    if(!started){ started = true; Music.start(); }
+    goto(1);
+  };
+  $('#openBtn').addEventListener('click', (e) => { e.stopPropagation(); go(); });
+  $('#s1').addEventListener('click', go);
+  $('#musicBtn').addEventListener('click', (e) => { e.stopPropagation(); Music.toggle(); });
+})();
+
+/* 微信里首次触摸解锁音频（部分 X5 内核需要） */
+['touchstart','pointerdown'].forEach(ev =>
+  document.addEventListener(ev, function once(){
+    if(Music.playing) return;
+    document.removeEventListener(ev, once);
+  }, { once:false, passive:true })
+);
+
+/* =========================================================
+   2 打字机（每次进入重播，可用 CONFIG.replayTyping 关掉）
+   ========================================================= */
+const Typing = (() => {
+  const el = $('#typed');
+  let timer = null, caret = null, done = false, running = false;
+
+  function reset(){
+    clearTimeout(timer);
+    el.textContent = '';
+    if(caret && caret.parentNode) caret.parentNode.removeChild(caret);
+    caret = document.createElement('span');
+    caret.className = 'caret';
+    el.after(caret);
+    const sub = $('#s2sub');
+    sub.classList.remove('on');
+    sub.style.opacity = '';
+  }
+
+  function start(){
+    if(running) return;        // 正在打字时不打断，避免滚动抖动导致永远打不完
+    running = true;
+    reset();
+    done = false;
+    const txt = CONFIG.typed;
+    let i = 0;
+    (function step(){
+      if(i <= txt.length){
+        el.textContent = txt.slice(0, i++);
+        timer = setTimeout(step, 190);
+      } else {
+        running = false;
+        done = true;
+        $('#s2sub').textContent = CONFIG.typedSub;
+        setTimeout(() => {
+          const s = $('#s2sub');
+          s.classList.add('on');
+          s.style.opacity = 1;
+        }, 320);
+      }
+    })();
+  }
+
+  return {
+    start,
+    get done(){ return done; }
+  };
+})();
+
+/* =========================================================
+   2 星空 + 打字机
+   ========================================================= */
+const SceneStars = (() => {
+  const cv = $('#stars');
+  let stars = [], live = false, raf = 0, t = 0, W = 0, H = 0, ctx = null;
+
+  function build(){
+    const f = fitCanvas(cv); ctx = f.ctx; W = f.w; H = f.h;
+    stars = [];
+    const n = Math.round(W * H / 5200);
+    for(let i = 0; i < n; i++){
+      stars.push({ x: Math.random()*W, y: Math.random()*H,
+        r: Math.random()*1.5 + .25, z: Math.random(),
+        p: Math.random()*6.28, v: Math.random()*.22 + .05 });
+    }
+  }
+  function loop(){
+    if(!live) return;
+    t += .016;
+    ctx.fillStyle = '#05060f'; ctx.fillRect(0, 0, W, H);
+    for(const s of stars){
+      s.y += s.v * (.4 + s.z);
+      if(s.y > H + 2){ s.y = -2; s.x = Math.random()*W; }
+      const tw = .45 + .55 * Math.sin(t*1.6 + s.p);
+      const a = tw * (.35 + .65*s.z);
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r*(.6 + s.z*.9), 0, 6.284);
+      ctx.fillStyle = s.z > .75 ? 'rgba(255,232,200,'+a+')'
+                    : s.z > .4  ? 'rgba(200,214,255,'+a+')'
+                                : 'rgba(150,168,220,'+(a*.8)+')';
+      ctx.fill();
+    }
+    raf = requestAnimationFrame(loop);
+  }
+  return {
+    start(){
+      if(live) return;
+      live = true; build(); loop();
+      // 打字：默认每次进入重播；CONFIG.replayTyping=false 时只打一次
+      if(CONFIG.replayTyping === false && Typing.done) return;
+      Typing.start();
+    },
+    stop(){ live = false; cancelAnimationFrame(raf); }
+  };
+})();
+
+/* =========================================================
+   3 粒子蛋糕 + 吹蜡烛
+   ========================================================= */
+const SceneCake = (() => {
+  const cv = $('#cake');
+  let P = [], live = false, raf = 0, ctx = null, W = 0, H = 0, CX = 0, CY = 0, K = 1;
+  let ang = 0, blown = false, smoke = [], t = 0, hintTimer = 0;
+  const rnd = a => (Math.random() - .5) * a;
+
+  function tier(yb, yt, r, color){
+    const ringN = Math.round(r * 2.2), ringH = Math.round(yb - yt);
+    for(let h = 0; h < ringH; h += 2){
+      const y = yb - h;
+      for(let i = 0; i < ringN; i++){
+        const a = Math.PI*2*i/ringN;
+        P.push({ x: Math.cos(a)*r + rnd(2), y: y + rnd(1.5), z: Math.sin(a)*r + rnd(2),
+                 c: color, s: 1.5 + Math.random()*1.1 });
+      }
+    }
+    for(let i = 0; i < Math.round(r*r*.9); i++){
+      const a = Math.random()*6.284, rr = Math.sqrt(Math.random())*r;
+      P.push({ x: Math.cos(a)*rr, y: yt + rnd(2), z: Math.sin(a)*rr, c: color, s: 1.5 });
+    }
+  }
+  function build(){
+    P = [];
+    tier(120,  40, 118, '#7b5cff');
+    tier( 40, -28,  92, '#ff7bb0');
+    tier(-28, -92,  64, '#ffd08a');
+    for(let i = 0; i < 70; i++){
+      const a = Math.PI*2*i/70;
+      P.push({ x: Math.cos(a)*118, y: 120, z: Math.sin(a)*118, c:'#c9b3ff', s:2.3 });
+      P.push({ x: Math.cos(a)*92,  y:  40, z: Math.sin(a)*92,  c:'#ffd6e8', s:2.1 });
+      P.push({ x: Math.cos(a)*64,  y: -28, z: Math.sin(a)*64,  c:'#fff0c8', s:1.9 });
+    }
+    for(let h = 0; h < 52; h += 1.6)
+      for(let i = 0; i < 8; i++){
+        const a = Math.PI*2*i/8;
+        P.push({ x: Math.cos(a)*4, y: -96 - h, z: Math.sin(a)*4, c:'#8ff0ff', s:1.4 });
+      }
+  }
+  function project(x, y, z, ca, sa){
+    const x1 = x*ca - z*sa, z1 = x*sa + z*ca;
+    const FOV = 620, DIST = 560;
+    const sc = FOV / (FOV + z1*K + DIST);
+    return { sx: CX + x1*K*sc, sy: CY + y*K*sc, sc, z: z1 };
+  }
+  function flame(bx, by, k){
+    if(blown) return;
+    ctx.globalCompositeOperation = 'lighter';
+    for(let i = 0; i < 14; i++){
+      const fy = by - Math.random()*30*k;
+      const fx = bx + (Math.random()-.5)*9*k;
+      ctx.fillStyle = i < 4 ? 'rgba(255,255,226,.95)'
+                    : i < 9 ? 'rgba(255,196,92,.72)' : 'rgba(255,110,40,.36)';
+      ctx.beginPath(); ctx.arc(fx, fy, Math.max(.6,(3.6 - i*.21)*k), 0, 6.284); ctx.fill();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  function loop(){
+    if(!live) return;
+    t += .016; if(!blown) ang += .006;
+    const g = ctx;
+    const bg = g.createRadialGradient(CX, CY-40, 30, CX, CY, Math.max(W,H)*.8);
+    bg.addColorStop(0,'#1d1233'); bg.addColorStop(.55,'#0c0817'); bg.addColorStop(1,'#06040c');
+    g.fillStyle = bg; g.fillRect(0,0,W,H);
+
+    const ca = Math.cos(ang), sa = Math.sin(ang);
+    const bob = Math.sin(t*1.1)*3;
+    const list = [];
+    for(const p of P){
+      const q = project(p.x, p.y + bob, p.z, ca, sa);
+      list.push({ sx:q.sx, sy:q.sy, sc:q.sc, z:q.z, c:p.c, s:p.s });
+    }
+    list.sort((a,b) => b.z - a.z);
+    for(const p of list){
+      const depth = .34 + .66 * (1 - (p.z + 140) / 300);
+      g.globalAlpha = Math.min(1, Math.max(.12, depth));
+      g.fillStyle = p.c;
+      g.beginPath(); g.arc(p.sx, p.sy, p.s*p.sc*K*1.35, 0, 6.284); g.fill();
+    }
+    g.globalAlpha = 1;
+
+    const wick = project(0, -150, 0, ca, sa);
+    flame(wick.sx, wick.sy, wick.sc*K*1.32);
+
+    // 烟
+    for(let i = smoke.length-1; i >= 0; i--){
+      const s = smoke[i];
+      s.y -= .55; s.x += Math.sin(s.t += .05) * .5; s.life -= .012;
+      if(s.life <= 0){ smoke.splice(i,1); continue; }
+      g.globalAlpha = s.life * .35;
+      g.fillStyle = '#cfc6e6';
+      g.beginPath(); g.arc(s.x, s.y, s.r + (1-s.life)*10, 0, 6.284); g.fill();
+    }
+    g.globalAlpha = 1;
+    raf = requestAnimationFrame(loop);
+  }
+  function blow(e){
+    if(blown) return;
+    blown = true;
+    const rect = cv.getBoundingClientRect();
+    const px = (e && e.clientX ? e.clientX - rect.left : CX);
+    const py = (e && e.clientY ? e.clientY - rect.top  : CY - 120);
+    for(let i = 0; i < 26; i++)
+      smoke.push({ x: px + (Math.random()-.5)*16, y: py - Math.random()*14,
+                   r: 3 + Math.random()*7, life: 1, t: Math.random()*6 });
+    $('#blowHint').style.opacity = 0;
+    const w = $('#wish'); w.textContent = CONFIG.wish; w.classList.add('on');
+    // 不自动跳页，留时间看完，只提示上滑
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => {
+      const h = $('#blowHint');
+      h.textContent = '上 滑 继 续';
+      h.style.opacity = 1;
+    }, 1600);
+  }
+  return {
+    start(){
+      if(live) return;
+      const f = fitCanvas(cv); ctx = f.ctx; W = f.w; H = f.h;
+      CX = W/2; CY = H*0.60;
+      K = Math.min(W/760, H/720) * 1.85;
+      if(!P.length) build();
+      // 再次进入：蜡烛重新点燃，可以再吹一次
+      if(blown){
+        blown = false;
+        smoke.length = 0;
+        $('#wish').classList.remove('on');
+        const h = $('#blowHint');
+        h.textContent = '轻 点 蜡 烛 ， 吹 灭 它';
+        h.style.opacity = '';
+      }
+      live = true; loop();
+    },
+    stop(){ live = false; cancelAnimationFrame(raf); clearTimeout(hintTimer); },
+    bind(){ cv.addEventListener('pointerdown', blow); cv.addEventListener('touchstart', blow, {passive:true}); }
+  };
+})();
+
+/* =========================================================
+   5 刮刮乐
+   ========================================================= */
+const SceneScratch = (() => {
+  const cv = $('#scratch');
+  const card = $('#scratchCard');
+  const letter = $('#letter');
+  let ctx = null, W = 0, H = 0, done = false, drawn = false, lineTimers = [], letterTimer = 0;
+  let paintedW = 0, paintedH = 0;
+
+  function paint(){
+    const f = fitCanvas(cv); ctx = f.ctx; W = f.w; H = f.h;
+    const g = ctx.createLinearGradient(0, 0, W, H);
+    g.addColorStop(0, '#b9b3c9'); g.addColorStop(.42, '#e6e1ee');
+    g.addColorStop(.55, '#cfc9dc'); g.addColorStop(1, '#a9a2bb');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    // 斜纹质感
+    ctx.strokeStyle = 'rgba(255,255,255,.20)'; ctx.lineWidth = 1.2;
+    for(let i = -H; i < W; i += 14){
+      ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H, H); ctx.stroke();
+    }
+    // 文字
+    ctx.fillStyle = 'rgba(90,84,110,.85)'; ctx.textAlign = 'center';
+    ctx.font = '600 15px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillText('刮 开 有 惊 喜', W/2, H/2 - 6);
+    ctx.font = '11px "PingFang SC","Microsoft YaHei",sans-serif';
+    ctx.fillStyle = 'rgba(90,84,110,.6)';
+    ctx.fillText('用 手 指 擦 一 擦', W/2, H/2 + 20);
+    cv.style.opacity = 1;
+    drawn = true;
+    paintedW = W; paintedH = H;
+  }
+
+  function erase(x, y){
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath(); ctx.arc(x, y, Math.max(16, W * .075), 0, 6.284); ctx.fill();
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  let lastClear = 0, hideTimer = 0, hintTimer = 0;
+  function checkClear(){
+    const now = performance.now();
+    if(now - lastClear < 260) return;
+    lastClear = now;
+    const step = 6;
+    const img = ctx.getImageData(0, 0, cv.width, cv.height).data;
+    let cleared = 0, total = 0;
+    for(let y = 0; y < cv.height; y += step * DPR){
+      for(let x = 0; x < cv.width; x += step * DPR){
+        total++;
+        if(img[(y * cv.width + x) * 4 + 3] < 40) cleared++;
+      }
+    }
+    if(total && cleared / total > .52) reveal();
+  }
+
+  // 自动缩放字号，保证整封信始终留在信纸内（不溢出、不滚动）
+  function fitLetter(){
+    let fs = 15;
+    letter.style.fontSize = fs + 'px';
+    while(letter.scrollHeight > letter.clientHeight + 1 && fs > 10){
+      fs -= 0.5;
+      letter.style.fontSize = fs + 'px';
+    }
+    // 极长文案：缩到最小仍放不下时，退化成内部滚动，绝不溢出信纸
+    if(letter.scrollHeight > letter.clientHeight + 1) letter.style.overflowY = 'auto';
+  }
+
+  function reveal(){
+    if(done) return;
+    done = true;
+    cv.style.opacity = 0;
+    hideTimer = setTimeout(() => { cv.style.display = 'none'; }, 820);
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(() => {
+      const t = $('#scratchTip');
+      if(t){ t.textContent = '向 上 滑 动'; t.style.color = '#c9a9bd'; }
+    }, 900);
+    $('#skip').style.display = 'none';
+    // 涂层刮完 → 信纸上的字逐行浮现（背景仍是这张信纸）
+    card.classList.add('done');
+    letterTimer = setTimeout(() => {
+      letter.classList.add('show');
+      fitLetter();
+      const lines = letter.querySelectorAll('.line');
+      lines.forEach(el => el.classList.remove('on'));
+      lineTimers.forEach(clearTimeout); lineTimers = [];
+      lines.forEach((el, i) => {
+        lineTimers.push(setTimeout(() => el.classList.add('on'), 260 + i * 430));
+      });
+    }, 500);
+  }
+
+  function pos(e){
+    const r = cv.getBoundingClientRect();
+    const p = e.touches ? e.touches[0] : e;
+    return { x: p.clientX - r.left, y: p.clientY - r.top };
+  }
+  let down = false;
+  function start(e){ if(done) return; down = true; const q = pos(e); erase(q.x, q.y); }
+  function move(e){ if(!down || done) return; e.preventDefault(); const q = pos(e); erase(q.x, q.y); checkClear(); }
+  function end(){ down = false; checkClear(); }
+
+  return {
+    start(){
+      // 再次进入：重新盖上一层新的涂层，可以再刮一次
+      if(done){
+        done = false; drawn = false;
+        clearTimeout(hideTimer); clearTimeout(hintTimer); clearTimeout(letterTimer);
+        lineTimers.forEach(clearTimeout); lineTimers = [];
+        cv.style.display = '';
+        cv.style.opacity = 1;
+        card.classList.remove('done');
+        letter.classList.remove('show');
+        letter.style.fontSize = '';
+        letter.style.overflowY = '';
+        letter.querySelectorAll('.line').forEach(el => el.classList.remove('on'));
+        $('#skip').style.display = '';
+        const t = $('#scratchTip');
+        if(t){ t.textContent = '用 手 指 刮 开 它'; t.style.color = ''; }
+        paint();
+        return;
+      }
+      if(!drawn) paint();
+      else {
+        // 尺寸变了（横竖屏切换 / 窗口缩放）就重新铺涂层，否则会被拉伸
+        const r = cv.getBoundingClientRect();
+        if(Math.abs(r.width - paintedW) > 2 || Math.abs(r.height - paintedH) > 2) paint();
+      }
+    },
+    stop(){ lineTimers.forEach(clearTimeout); },
+    bind(){
+      cv.addEventListener('pointerdown', start);
+      cv.addEventListener('pointermove', move, { passive:false });
+      addEventListener('pointerup', end);
+      cv.addEventListener('touchstart', start, { passive:true });
+      cv.addEventListener('touchmove', move, { passive:false });
+      cv.addEventListener('touchend', end);
+      $('#skip').addEventListener('click', reveal);
+    }
+  };
+})();
+
+/* =========================================================
+   4 拆礼物
+   ========================================================= */
+const SceneGift = (() => {
+  const cv = $('#giftFx');
+  const box = $('#giftBox');
+  let ctx = null, W = 0, H = 0, live = false, raf = 0, t = 0;
+  let pieces = [], dust = [], blooms = [], opened = false, timers = [], actx = null;
+
+  // 盒子里蹦出来的小东西（默认清单；实际读 CONFIG.giftItems）
+  // 只用 Emoji 12 及以前的常见字符，避免旧版 Windows / 微信渲染成方框
+  const ITEMS = ['💄','💍','👑','🎀','💐','🌹','🌷','🌸','🍰','🍩',
+                 '☕️','🍬','🍫','🎁','🧸','🐱','🐰','🦄','⭐','🎈','🍓',
+                 '🍒','🍉','🎂','🍭','🌻','🦋'];
+
+  const CF_COLORS = ['#ffd166','#ff8fb8','#8be9fd','#a78bfa','#7bed9f','#ff9f43','#fff1c9'];
+
+  // 从下往上逐渐变大的背景图案（越靠上越大 = 越近）
+  const DEEP = ['🌸','💗','⭐','🎈','🌷','✨','🍬','🌼','🦋','💫'];
+  function buildDeep(){
+    const holder = $('#gDeep');
+    if(!holder) return;
+    holder.innerHTML = '';
+    const n = 14;
+    for(let i = 0; i < n; i++){
+      const t = i / (n - 1);                     // 0 = 底部，1 = 顶部
+      const el = document.createElement('i');
+      el.textContent = DEEP[i % DEEP.length];
+      el.style.left = (5 + Math.random()*88).toFixed(1) + '%';
+      el.style.bottom = (3 + t*88).toFixed(1) + '%';
+      el.style.fontSize = (12 + t*40).toFixed(1) + 'px';
+      el.style.opacity = (0.10 + t*0.17).toFixed(2);
+      el.style.filter = 'blur(' + (0.4 + (1 - t)*1.3).toFixed(1) + 'px)';
+      el.style.animationDelay = (-Math.random()*6).toFixed(1) + 's';
+      el.style.animationDuration = (7 + Math.random()*5).toFixed(1) + 's';
+      holder.appendChild(el);
+    }
+  }
+
+  // 铺满背景的飘落纸屑（纯 CSS 动画，不占 canvas）
+  function buildConfetti(){
+    const holder = $('#gConfetti');
+    if(!holder) return;
+    holder.innerHTML = '';
+    for(let i = 0; i < 30; i++){
+      const el = document.createElement('i');
+      el.style.left = (Math.random()*100).toFixed(1) + '%';
+      el.style.width = (4 + Math.random()*5).toFixed(1) + 'px';
+      el.style.height = (7 + Math.random()*7).toFixed(1) + 'px';
+      el.style.background = CF_COLORS[(Math.random()*CF_COLORS.length)|0];
+      el.style.opacity = (0.30 + Math.random()*0.32).toFixed(2);
+      el.style.setProperty('--drift', Math.round(Math.random()*80 - 40) + 'px');
+      el.style.setProperty('--spin', Math.round(Math.random()*900 - 450) + 'deg');
+      el.style.animationDuration = (9 + Math.random()*10).toFixed(1) + 's';
+      el.style.animationDelay = (-Math.random()*18).toFixed(1) + 's';
+      holder.appendChild(el);
+    }
+  }
+
+  function buildItems(){
+    const holder = $('#giftItems');
+    if(!holder) return;
+    holder.innerHTML = '';
+    const list = (CONFIG.giftItems && CONFIG.giftItems.length) ? CONFIG.giftItems : ITEMS;
+
+    /* 三层扇形，按圆弧弦长排布，保证每个之间留出间隔：
+       后排半径大、尺寸小；前排半径小、尺寸大 —— 像打开的折扇 */
+    const ROWS = [
+      { r: 200, sz: 25, span: 92,  z: 3 },
+      { r: 160, sz: 30, span: 106, z: 4 },
+      { r: 120, sz: 32, span: 118, z: 5 },
+      { r: 78,  sz: 22, span: 104, z: 6 }   // 最靠前的一排，落在盒口光柱里
+    ];
+    const per = Math.ceil(list.length / ROWS.length);
+
+    ROWS.forEach((row, ri) => {
+      const items = list.slice(ri * per, ri * per + per);
+      if(!items.length) return;
+      const n = items.length;
+      const span = row.span * Math.PI / 180;
+      const step = n > 1 ? span / (n - 1) : 0;
+      items.forEach((ic, i) => {
+        const a = -Math.PI/2 + (i - (n - 1)/2) * step;
+        const el = document.createElement('div');
+        el.className = 'gitem';
+        el.textContent = ic;
+        el.style.zIndex = row.z;
+        el.style.setProperty('--tx', Math.round(Math.cos(a) * row.r) + 'px');
+        el.style.setProperty('--ty', Math.round(Math.sin(a) * row.r) + 'px');
+        el.style.setProperty('--rot', Math.round((i - (n - 1)/2) * 7) + 'deg');
+        el.style.setProperty('--sz', row.sz + 'px');
+        el.style.transitionDelay = (ri * 0.07 + Math.random() * 0.1).toFixed(2) + 's';
+        holder.appendChild(el);
+      });
+    });
+  }
+
+  function fit(){
+    const f = fitCanvas(cv);
+    ctx = f.ctx; W = f.w; H = f.h;
+  }
+  function seedDust(){
+    dust = [];
+    for(let i = 0; i < 46; i++){
+      dust.push({ x: Math.random(), y: Math.random(),
+        r: .6 + Math.random()*1.8, v: .00018 + Math.random()*.0005,
+        ph: Math.random()*6.28 });
+    }
+  }
+
+  // 开盖音效：C-E-G-C 上行琶音（Web Audio 合成，无需音频文件）
+  function chime(){
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      if(!actx) actx = new AC();
+      if(actx.state === 'suspended') actx.resume();
+      const t0 = actx.currentTime;
+      [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+        const at = t0 + i*0.085;
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, at);
+        g.gain.exponentialRampToValueAtTime(0.15, at + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, at + 1.05);
+        o.connect(g); g.connect(actx.destination);
+        o.start(at); o.stop(at + 1.15);
+      });
+    }catch(e){}
+  }
+
+  function burst(){
+    if(!W) fit();
+    const br = box.getBoundingClientRect(), cr = cv.getBoundingClientRect();
+    const cx = br.left - cr.left + br.width/2;
+    const cy = br.top - cr.top + 18;
+    const COL = ['#ffd166','#ff6b9d','#8be9fd','#a78bfa','#7bed9f','#ff9f43','#fff1c9'];
+    for(let i = 0; i < 120; i++){
+      const a = -Math.PI/2 + (Math.random() - .5)*2.1;
+      const sp = 5 + Math.random()*9;
+      pieces.push({ x: cx, y: cy, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+        w: 4 + Math.random()*6, h: 7 + Math.random()*9,
+        rot: Math.random()*6.28, vr: (Math.random() - .5)*.4,
+        c: COL[(Math.random()*COL.length)|0],
+        life: 1, decay: .0035 + Math.random()*.0035 });
+    }
+  }
+
+  // 背景礼花：几处错开时间绽开
+  function burstFire(x, y){
+    const COL = ['#ffd166','#ff8fb8','#8be9fd','#a78bfa','#7bed9f','#ff9f43','#fff1c9'];
+    const c1 = COL[(Math.random()*COL.length)|0];
+    const c2 = COL[(Math.random()*COL.length)|0];
+    for(let i = 0; i < 3; i++)
+      blooms.push({ x, y, vx: 0, vy: 0, life: 1, decay: .16, c: '#fff8e2', w: 19 });
+    for(let i = 0; i < 48; i++){
+      const a = Math.random()*6.283, sp = 1.1 + Math.random()*4.4;
+      blooms.push({ x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+        life: 1, decay: .009 + Math.random()*.008,
+        c: Math.random() < .5 ? c1 : c2, w: 1.3 + Math.random()*1.3 });
+    }
+  }
+  function fire(){
+    if(!W) fit();
+    const spots = [[.20,.24],[.80,.20],[.50,.10],[.14,.44],[.86,.40],[.64,.30],[.34,.16]];
+    spots.forEach((p, i) => {
+      timers.push(setTimeout(() => burstFire(W*p[0], H*p[1]), 140 + i*150));
+    });
+  }
+
+  // 盒口往上飘的小亮点，填住盒子与礼物之间的空档
+  function spawnRise(){
+    if(!W) fit();
+    const br = box.getBoundingClientRect(), cr = cv.getBoundingClientRect();
+    blooms.push({
+      x: br.left - cr.left + br.width/2 + (Math.random() - .5)*130,
+      y: br.top - cr.top + 8,
+      vx: (Math.random() - .5)*.5,
+      vy: -1.1 - Math.random()*1.5,
+      life: 1, decay: .0055,
+      c: Math.random() < .5 ? '#ffd9e8' : '#ffe9c9',
+      w: 1.4 + Math.random()*1.5, rise: true
+    });
+  }
+
+  function loop(){
+    if(!live) return;
+    t += .016;
+    ctx.clearRect(0, 0, W, H);
+
+    for(const d of dust){
+      d.y -= d.v * 60;
+      if(d.y < -0.02){ d.y = 1.02; d.x = Math.random(); }
+      ctx.globalAlpha = .16 + .2*Math.sin(t*1.6 + d.ph);
+      ctx.fillStyle = '#cbb6ff';
+      ctx.beginPath(); ctx.arc(d.x*W, d.y*H, d.r, 0, 6.284); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    for(let i = pieces.length - 1; i >= 0; i--){
+      const p = pieces[i];
+      p.vy += .16; p.vx *= .995; p.vy *= .995;
+      p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+      p.life -= p.decay;
+      if(p.life <= 0 || p.y > H + 40){ pieces.splice(i, 1); continue; }
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha = Math.min(1, p.life*1.4);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h*Math.abs(Math.cos(p.rot)));
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+
+    // 礼花
+    if(blooms.length){
+      ctx.globalCompositeOperation = 'lighter';
+      for(let i = blooms.length - 1; i >= 0; i--){
+        const s = blooms[i];
+        if(!s.rise) s.vy += .035;
+        s.vx *= .984; s.vy *= .984;
+        s.x += s.vx; s.y += s.vy;
+        s.life -= s.decay;
+        if(s.life <= 0){ blooms.splice(i, 1); continue; }
+        ctx.globalAlpha = Math.max(0, s.life) * (s.rise ? .75 : 1);
+        ctx.fillStyle = s.c;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.w*s.life + .5, 0, 6.284); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
+    if(opened && Math.random() < .22) spawnRise();
+    raf = requestAnimationFrame(loop);
+  }
+
+  function open(){
+    if(opened) return;
+    opened = true;
+    box.classList.add('open');
+    $('#giftHint').classList.add('hide');
+    chime();
+    burst();
+    fire();
+    // 兜底：万一某些内核不跑 keyframes，1.3 秒后直接把盖子藏掉
+    const lid = box.querySelector('.glid');
+    timers.push(setTimeout(() => { if(lid) lid.style.opacity = '0'; }, 1300));
+  }
+
+  return {
+    start(){
+      // 每次进入都重新量一次画布：横竖屏切换后尺寸会变，不重量会被拉伸
+      if(!ctx){ fit(); seedDust(); } else { fit(); }
+      if(opened){                      // 再次进入：礼物重新包好
+        opened = false;
+        box.classList.remove('open');
+        timers.forEach(clearTimeout); timers = [];
+        $('#giftHint').classList.remove('hide');
+        pieces.length = 0;
+        blooms.length = 0;
+        const lid = box.querySelector('.glid');
+        if(lid) lid.style.opacity = '';
+      }
+      if(!live){ live = true; loop(); }
+      // 调试用：?open=1 直接打开礼物盒（方便本地预览终态）
+      if(location.search.indexOf('open') >= 0 && !opened){
+        timers.push(setTimeout(open, 350));
+      }
+    },
+    stop(){ live = false; cancelAnimationFrame(raf); },
+    bind(){
+      buildItems();
+      buildConfetti();
+      buildDeep();
+      box.addEventListener('click', open);
+      addEventListener('resize', () => { if(live) fit(); });
+    }
+  };
+})();
+
+/* =========================================================
+   6 烟花
+   ========================================================= */
+const SceneFire = (() => {
+  const cv = $('#fireworks');
+  let ctx = null, W = 0, H = 0, live = false, raf = 0, tick = 0, last = 0;
+  const rockets = [], sparks = [], confetti = [];
+  const COL = ['#ffd166','#ff6b9d','#8be9fd','#a78bfa','#7bed9f','#ff9f43'];
+
+  function boom(x, y){
+    const n = 80 + Math.round(Math.random()*50);
+    const c1 = COL[(Math.random()*COL.length)|0];
+    const c2 = COL[(Math.random()*COL.length)|0];
+    // 用一小簇高速白点代替"白光圆盘"，避免中心残留灰色圆斑
+    for(let i = 0; i < 6; i++){
+      const a = Math.random()*6.283;
+      const sp = .6 + Math.random()*1.2;
+      sparks.push({ x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+        life: 1, decay: .10, c: '#fffaf0', w: 2.6 });
+    }
+    for(let i = 0; i < n; i++){
+      const a = Math.PI*2*i/n + Math.random()*.12;
+      const sp = Math.random()*4.4 + 2.0;
+      sparks.push({ x, y, vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+        life: 1, decay: .008 + Math.random()*.01, c: Math.random() < .5 ? c1 : c2,
+        w: 1.5 + Math.random()*1.5 });
+    }
+  }
+  function launch(){
+    rockets.push({ x: W*(.15 + Math.random()*.7), y: H + 8,
+      vy: -(8.4 + Math.random()*2.2), ty: H*(.14 + Math.random()*.3),
+      c: COL[(Math.random()*COL.length)|0] });
+  }
+  function confettiBurst(){
+    for(let i = 0; i < 64; i++){
+      confetti.push({ x: Math.random()*W, y: -20 - Math.random()*280,
+        vx: (Math.random()-.5)*1.3, vy: 1.5 + Math.random()*2,
+        w: 5 + Math.random()*6, h: 8 + Math.random()*10,
+        rot: Math.random()*6.28, vr: (Math.random()-.5)*.22,
+        c: COL[(Math.random()*COL.length)|0], sway: Math.random()*6.28 });
+    }
+  }
+  function loop(){
+    if(!live) return;
+    const now = performance.now();
+    let dt = (now - last) / 16.67; last = now;
+    if(!isFinite(dt) || dt <= 0) dt = 1;
+    dt = Math.min(dt, 6);
+    tick++;
+
+    ctx.globalCompositeOperation = 'source-over';   // 显式复位，避免上一帧的叠加模式污染拖尾
+    ctx.fillStyle = 'rgba(4,4,12,.26)'; ctx.fillRect(0,0,W,H);
+
+    if(tick % 44 === 0) launch();
+    ctx.globalCompositeOperation = 'lighter';
+    for(let i = rockets.length-1; i >= 0; i--){
+      const r = rockets[i];
+      r.y += r.vy*dt; r.vy += .06*dt;
+      ctx.fillStyle = r.c;
+      ctx.beginPath(); ctx.arc(r.x, r.y, 2.2, 0, 6.284); ctx.fill();
+      if(r.y <= r.ty){ boom(r.x, r.y); rockets.splice(i,1); }
+    }
+    for(let i = sparks.length-1; i >= 0; i--){
+      const s = sparks[i];
+      s.x += s.vx*dt; s.y += s.vy*dt;
+      s.vy += .022*dt;
+      s.vx *= Math.pow(.985, dt); s.vy *= Math.pow(.985, dt);
+      s.life -= s.decay*dt;
+      if(s.life <= 0){ sparks.splice(i,1); continue; }
+      ctx.globalAlpha = Math.max(0, s.life);
+      ctx.fillStyle = s.c;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.w*s.life + .4, 0, 6.284); ctx.fill();
+    }
+    ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
+
+    for(let i = confetti.length-1; i >= 0; i--){
+      const f = confetti[i];
+      f.sway += .05;
+      f.x += (f.vx + Math.sin(f.sway)*.9)*dt;
+      f.y += f.vy*dt; f.rot += f.vr*dt; f.vy += .004*dt;
+      if(f.y > H + 40){ confetti.splice(i,1); continue; }
+      ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+      ctx.globalAlpha = .92; ctx.fillStyle = f.c;
+      ctx.fillRect(-f.w/2, -f.h/2, f.w, f.h*Math.abs(Math.cos(f.rot)));
+      ctx.restore();
+    }
+    ctx.globalAlpha = 1;
+    raf = requestAnimationFrame(loop);
+  }
+  return {
+    start(){
+      if(live) return;
+      const f = fitCanvas(cv); ctx = f.ctx; W = f.w; H = f.h;
+      if(!tick){
+        for(let i = 0; i < 4; i++) boom(W*(.16 + Math.random()*.68), H*(.14 + Math.random()*.3));
+        confettiBurst();
+      }
+      last = performance.now();
+      live = true; loop();
+    },
+    stop(){ live = false; cancelAnimationFrame(raf); },
+    again(){
+      for(let i = 0; i < 6; i++)
+        setTimeout(() => boom(W*(.1 + Math.random()*.8), H*(.1 + Math.random()*.42)), i*230);
+      confettiBurst();
+    }
+  };
+})();
+
+/* =========================================================
+   场景调度（滚动驱动，兼容微信 X5 内核）
+   ========================================================= */
+const SC = document.getElementById('scenes');
+const SECS = [...document.querySelectorAll('.scene')];
+
+function topInScroller(el){
+  return el.getBoundingClientRect().top - SC.getBoundingClientRect().top + SC.scrollTop;
+}
+let scrollAnim = 0;
+let sceneUpdate = null;          // 由 orchestrate 注入，翻页时同步激活目标场景
+function stopAnim(){
+  if(scrollAnim){ cancelAnimationFrame(scrollAnim); scrollAnim = 0; }
+}
+SC.addEventListener('touchstart', stopAnim, { passive:true });
+SC.addEventListener('wheel', stopAnim, { passive:true });
+
+function goto(idx, smooth){
+  const el = SECS[idx];
+  if(!el) return;
+  const target = topInScroller(el);
+  SC.scrollLeft = 0;
+  stopAnim();
+  if(smooth === false){ SC.scrollTop = target; if(sceneUpdate) sceneUpdate(); return; }
+  // 自己写缓动：不依赖 scrollTo({behavior:'smooth'})，老内核也走得动
+  const start = SC.scrollTop;
+  const dist = target - start;
+  if(Math.abs(dist) < 2) return;
+  const dur = Math.min(720, 260 + Math.abs(dist) * 0.35);
+  const t0 = performance.now();
+  (function step(){
+    const k = Math.min(1, (performance.now() - t0) / dur);
+    const e = k < .5 ? 2*k*k : 1 - Math.pow(-2*k + 2, 2) / 2;
+    SC.scrollTop = start + dist * e;
+    if(k < 1){ scrollAnim = requestAnimationFrame(step); }
+    else { scrollAnim = 0; SC.scrollTop = target; if(sceneUpdate) sceneUpdate(); }
+  })();
+}
+
+(function orchestrate(){
+  const map = { s1: null, s2: SceneStars, s3: SceneCake,
+                s4: SceneGift, s5: SceneScratch, s6: SceneFire };
+
+  const dots = $('#dots');
+  SECS.forEach((s, i) => {
+    const d = document.createElement('i');
+    d.addEventListener('click', () => goto(i));
+    dots.appendChild(d);
+  });
+  const dotEls = [...dots.children];
+
+  let cur = -1, queued = false;
+  function idxNow(){
+    const c = SC.scrollTop + window.innerHeight * 0.45;
+    let i = 0;
+    for(let k = 0; k < SECS.length; k++) if(c >= topInScroller(SECS[k]) - 2) i = k;
+    return i;
+  }
+  function update(){
+    const i = idxNow();
+    if(i === cur) return;
+    if(cur >= 0){
+      const prev = map[SECS[cur].id];
+      if(prev && prev.stop) prev.stop();
+    }
+    cur = i;
+    dotEls.forEach((d, k) => d.classList.toggle('on', k === i));
+    if(i > 0) SC.classList.remove('locked');
+    const next = map[SECS[i].id];
+    if(next && next.start) next.start();
+  }
+  SC.addEventListener('scroll', () => {
+    if(queued) return;
+    queued = true;
+    requestAnimationFrame(() => { queued = false; update(); });
+  }, { passive:true });
+  sceneUpdate = update;
+  addEventListener('resize', update);
+  update();
+
+  SceneCake.bind();
+  SceneGift.bind();
+  SceneScratch.bind();
+  $('#again').addEventListener('click', () => SceneFire.again());
+
+  // 允许用 #s3 这样的锚点直接定位（方便预览 / 分享到某一页）
+  if(/^#s\d+$/.test(location.hash)){
+    const idx = SECS.findIndex(s => s.id === location.hash.slice(1));
+    if(idx >= 0) setTimeout(() => {
+      SC.classList.remove('locked');
+      goto(idx, false);
+      update();
+    }, 60);
+  }
+})();
+
+/* =========================================================
+   微信适配收尾
+   ========================================================= */
+(function wechat(){
+  $('#letterTo').textContent = '写给 ' + CONFIG.name + '：';
+  $('#letterFrom').textContent = CONFIG.from;
+  $('#cardSign').textContent = '—— ' + CONFIG.from;
+  $('#finalTitle').textContent = CONFIG.finalTitle;
+  $('#finalSub').textContent = CONFIG.finalSub;
+
+  // 第 4 幕礼物：盒子里蹦出来的东西在 CONFIG.giftItems 里改
+
+  // 微信里第一次触摸时提示（声音/翻页）
+  if(isWeChat){
+    const tip = $('#wxTip');
+    tip.classList.add('on');
+    setTimeout(() => tip.classList.remove('on'), 2600);
+  }
+
+  // 防止微信里双击缩放
+  let lastTouch = 0;
+  document.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if(now - lastTouch <= 300) e.preventDefault();
+    lastTouch = now;
+  }, { passive: false });
+})();
+</script>
+</body>
+</html>
