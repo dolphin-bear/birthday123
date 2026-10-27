@@ -442,18 +442,17 @@
       <div class="inner" id="cardInner">
         <h3>刮 开 看 看</h3>
         <p>有 一 封 信 藏 在 下 面<br>刮 完 它 就 会 出 现</p>
-        <div class="sign" id="cardSign">—— 想你的人</div>
       </div>
 
       <div class="letter" id="letter">
-        <div class="line to" id="letterTo">写给 宝贝：</div>
+        <div class="line to" id="letterTo">写给 小寿星：</div>
         <div class="line">认识你之后，我才发现日子是可以被记住的。</div>
         <div class="line">不是每一天都特别，是因为有你在，</div>
-        <div class="line">普通的星期三也值得被好好收藏。</div>
-        <div class="line">这一年你辛苦了，有很多时刻我都看在眼里。</div>
-        <div class="line">新的一岁，愿你不必逞强，</div>
-        <div class="line">想要的都能慢慢得到，难过的事都尽快过去。</div>
-        <div class="line">我会一直在，不只是在生日这天。</div>
+        <div class="line">哪怕是普通的星期三也会因你而被赋予特殊的意义。</div>
+        <div class="line">遥想第一次的见面竟已过许久时光，</div>
+        <div class="line">我不禁许下心愿，愿你往后开开心心，事事顺遂🎇。</div>
+        <div class="line">难过的事终会过去，想要的都能慢慢得到。</div>
+        <div class="line">我一直都在，不仅是生日这天🎉。</div>
         <div class="line from" id="letterFrom">—— 生日快乐，永远爱你</div>
       </div>
 
@@ -480,8 +479,8 @@
    可修改的配置：改这里就够了
    ========================================================= */
 const CONFIG = {
-  name: '宝贝',                 // 对方称呼
-  from: '想你的人',              // 落款
+  name: '小寿星',                 // 对方称呼
+  from: '在远方念你的人',              // 落款
   coverTitle: '生日快乐',
   coverSub: '有一份小小的心意<br>只给你一个人',
   typed: '生日快乐 ！',
@@ -1537,7 +1536,7 @@ function goto(idx, smooth){
    微信适配收尾
    ========================================================= */
 (function wechat(){
-  $('#letterTo').textContent = '写给 ' + CONFIG.name + '：';
+  $('#letterTo').textContent = '嗨 ' + CONFIG.name + '😀：';
   $('#letterFrom').textContent = CONFIG.from;
   $('#cardSign').textContent = '—— ' + CONFIG.from;
   $('#finalTitle').textContent = CONFIG.finalTitle;
